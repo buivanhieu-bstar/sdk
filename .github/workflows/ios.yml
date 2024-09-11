@@ -1,0 +1,57 @@
+name: Build iOS XCFramework
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build XCFramework
+    runs-on: macos-latest
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step 2: Set up Xcode environment
+    - name: Set up Xcode
+      run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+
+    # Step 3: Install dependencies (if using CocoaPods or Carthage)
+    # Uncomment the section below if you need to install dependencies like CocoaPods or Carthage
+    # - name: Install CocoaPods
+    #   run: pod install
+
+    # Step 4: Build the XCFramework
+    - name: Build XCFramework
+      run: |
+        xcodebuild archive \
+          -scheme HDCore \
+          -sdk iphoneos \
+          -archivePath $PWD/build/ios_devices.xcarchive \
+          SKIP_INSTALL=NO \
+          BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+
+        xcodebuild archive \
+          -scheme HDCore \
+          -sdk iphonesimulator \
+          -archivePath $PWD/build/ios_simulators.xcarchive \
+          SKIP_INSTALL=NO \
+          BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+
+        xcodebuild -create-xcframework \
+          -framework $PWD/build/ios_devices.xcarchive/Products/Library/Frameworks/HDCore.framework \
+          -framework $PWD/build/ios_simulators.xcarchive/Products/Library/Frameworks/HDCore.framework \
+          -output $PWD/build/HDCore.xcframework
+
+    # Step 5: Upload the XCFramework as an artifact
+    - name: Upload XCFramework
+      uses: actions/upload-artifact@v3
+      with:
+        name: HDCore.xcframework
+        path: build/HDCore.xcframework
