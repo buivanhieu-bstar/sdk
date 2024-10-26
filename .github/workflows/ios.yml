@@ -49,9 +49,19 @@ jobs:
           -framework $PWD/build/ios_simulators.xcarchive/Products/Library/Frameworks/HDCore.framework \
           -output $PWD/build/HDCore.xcframework
 
-    # Step 5: Upload the XCFramework as an artifact
-    - name: Upload XCFramework
-      uses: actions/upload-artifact@v3
-      with:
-        name: HDCore.xcframework
-        path: build/HDCore.xcframework
+    # Step 5: Zip the XCFramework
+      - name: Archive XCFramework
+        run: |
+          cd build
+          zip -r HDCore.xcframework.zip HDCore.xcframework
+
+      # Step 6: Upload the XCFramework as an artifact
+      - name: Upload XCFramework
+        uses: actions/upload-artifact@v3
+        with:
+          name: HDCore.xcframework.zip
+          path: build/HDCore.xcframework.zip
+
+      # Optional: Clean up the build folder
+      - name: Clean up
+        run: rm -rf build
