@@ -3,8 +3,7 @@ name: Build iOS XCFramework
 on:
   push:
     tags:
-      - 'v*.*.*'  # Triggers on version tags like v1.0.0
-  pull_request:
+      - 'v*.*.*' 
     branches:
       - master
 
